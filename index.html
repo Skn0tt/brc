@@ -1,0 +1,35 @@
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"
+/>
+
+<h1>BRC - Brussels Relay Chat</h1>
+<pre>
+<code id="messages"></code>
+</pre>
+
+<form id="form">
+  <input id="input" style="display: inline" />
+  <button type="submit" style="display: inline">Send</button>
+</form>
+
+<script>
+  const messages = document.getElementById("messages");
+
+  const source = new EventSource("/api/listen");
+  source.addEventListener("message", (ev) => {
+    messages.textContent += ev.data + "\n";
+  });
+
+  document.getElementById("form").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const [input] = ev.target;
+    const message = input.value;
+    input.value = "";
+
+    await fetch("/api/send", {
+      method: "POST",
+      body: message,
+    });
+  });
+</script>
